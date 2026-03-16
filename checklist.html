@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鎧チェックリスト｜鈴木健太</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a18;
+    --ink-mid: #4a4a42;
+    --ink-light: #8a8a7a;
+    --paper: #f7f4ee;
+    --paper-warm: #efe9dc;
+    --accent: #8b5e3c;
+    --accent-light: #c4956a;
+    --accent-pale: #f0e4d4;
+    --green: #3d6b4f;
+    --green-pale: #e4ede8;
+    --line: rgba(26,26,24,0.12);
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* 背景テクスチャ */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(26,26,24,0.025) 28px, rgba(26,26,24,0.025) 29px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+  }
+
+  /* ヘッダー */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .header-label {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    border: 1px solid var(--accent-light);
+    padding: 5px 16px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 500;
+  }
+
+  .header h1 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 700;
+    line-height: 1.6;
+    color: var(--ink);
+    margin-bottom: 16px;
+    letter-spacing: 0.02em;
+  }
+
+  .header h1 span {
+    color: var(--accent);
+  }
+
+  .header-sub {
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  /* 区切り線 */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 32px 0;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+  .divider-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent-light);
+  }
+
+  /* チェックリスト */
+  .checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    animation: fadeUp 0.6s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .check-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--accent-light);
+    transform: scaleY(0);
+    transition: transform 0.25s ease;
+    transform-origin: bottom;
+  }
+
+  .check-item:hover {
+    border-color: var(--accent-light);
+    transform: translateX(3px);
+  }
+
+  .check-item.checked {
+    background: var(--accent-pale);
+    border-color: var(--accent-light);
+  }
+
+  .check-item.checked::before {
+    transform: scaleY(1);
+  }
+
+  .check-box {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    border: 1.5px solid var(--ink-light);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    transition: all 0.2s ease;
+    background: white;
+  }
+
+  .check-item.checked .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .check-mark {
+    opacity: 0;
+    transform: scale(0.5) rotate(-10deg);
+    transition: all 0.2s ease;
+    color: white;
+    font-size: 13px;
+    line-height: 1;
+  }
+
+  .check-item.checked .check-mark {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+
+  .check-number {
+    font-size: 11px;
+    color: var(--accent-light);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    min-width: 22px;
+    text-align: center;
+    margin-top: 3px;
+  }
+
+  .check-content {
+    flex: 1;
+  }
+
+  .check-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 5px;
+    font-family: 'Noto Serif JP', serif;
+  }
+
+  .check-desc {
+    font-size: 12px;
+    color: var(--ink-mid);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* アニメーション遅延 */
+  .check-item:nth-child(1) { animation-delay: 0.1s; }
+  .check-item:nth-child(2) { animation-delay: 0.2s; }
+  .check-item:nth-child(3) { animation-delay: 0.3s; }
+  .check-item:nth-child(4) { animation-delay: 0.4s; }
+  .check-item:nth-child(5) { animation-delay: 0.5s; }
+  .check-item:nth-child(6) { animation-delay: 0.6s; }
+  .check-item:nth-child(7) { animation-delay: 0.7s; }
+
+  /* 結果エリア */
+  .result-area {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 28px 24px;
+    text-align: center;
+    animation: fadeUp 0.8s ease 0.8s both;
+  }
+
+  .result-count {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .result-count span {
+    font-size: 18px;
+    color: var(--ink-mid);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
+  }
+
+  .result-label {
+    font-size: 13px;
+    color: var(--ink-mid);
+    margin-bottom: 20px;
+    font-weight: 300;
+  }
+
+  .result-message {
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--ink);
+    padding: 16px;
+    background: var(--paper-warm);
+    border-radius: 3px;
+    text-align: left;
+    font-family: 'Noto Serif JP', serif;
+    display: none;
+  }
+
+  .result-message.visible {
+    display: block;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  /* CTA */
+  .cta-area {
+    margin-top: 40px;
+    text-align: center;
+    animation: fadeUp 0.8s ease 1s both;
+  }
+
+  .cta-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--ink-light);
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+
+  .cta-text {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--ink);
+    margin-bottom: 24px;
+  }
+
+  .cta-text strong {
+    color: var(--accent);
+  }
+
+  .cta-btn {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 16px 40px;
+    border-radius: 3px;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: all 0.2s ease;
+    font-family: 'Noto Sans JP', sans-serif;
+    border: none;
+    cursor: pointer;
+  }
+
+  .cta-btn:hover {
+    background: #7a4f2e;
+    transform: translateY(-1px);
+  }
+
+  .cta-note {
+    font-size: 11px;
+    color: var(--ink-light);
+    margin-top: 12px;
+    font-weight: 300;
+  }
+
+  /* フッター署名 */
+  .footer-sig {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    animation: fadeUp 0.8s ease 1.2s both;
+  }
+
+  .sig-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent-pale);
+    border: 2px solid var(--accent-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 16px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .sig-info p:first-child {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    font-family: 'Noto Serif JP', serif;
+  }
+
+  .sig-info p:last-child {
+    font-size: 11px;
+    color: var(--ink-light);
+    margin-top: 3px;
+    font-weight: 300;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <div class="header">
+    <div class="header-label">LINE登録特典</div>
+    <h1>あなたは今、<span>鎧を着て</span>いませんか？</h1>
+    <p class="header-sub">当てはまるものにチェックを入れてみてください。<br>自分でも気づいていなかった「鎧」が見えてきます。</p>
+  </div>
+
+  <div class="checklist" id="checklist">
+
+    <div class="check-item" onclick="toggle(this, 0)">
+      <div class="check-box"><span class="check-mark">✓</span></div>
+      <div class="check-content">
+        <div class="check-title">できないことを「できる」と言ってしまう</div>
+        <div class="check-desc">会議や商談で、本当はわからないのに「大丈夫です」と答えてしまう</div>
+      </div>
+    </div>
+
+    <div class="check-item" onclick="toggle(this, 1)">
+      <div class="check-box"><span class="check-mark">✓</span></div>
+      <div class="check-content">
+        <div class="check-title">弱みを家族に見せられない</div>
+        <div class="check-desc">妻や子供の前では「頼れる父・夫」でいなければと思っている</div>
+      </div>
+    </div>
+
+    <div class="check-item" onclick="toggle(this, 2)">
+      <div class="check-box"><span class="check-mark">✓</span></div>
+      <div class="check-content">
+        <div class="check-title">新しい情報を見るとすぐ試したくなる</div>
+        <div class="check-desc">セミナー・本・SNSで「これだ」と思っても、3日後には別のものを探している</div>
+      </div>
+    </div>
+
+    <div class="check-item" onclick="toggle(this, 3)">
+      <div class="check-box"><span class="check-mark">✓</span></div>
+      <div class="check-content">
+        <div class="check-title">頑張っているのに充実感がない</div>
+        <div class="check-desc">忙しくしているのに、夜になると「今日も何も変わらなかった」と感じる</div>
+      </div>
+    </div>
+
+    <div class="check-item" onclick="toggle(this, 4)">
+      <div class="check-box"><span class="check-mark">✓</span></div>
+      <div class="check-content">
+        <div class="check-title">独立・副業を「いつか」と言い続けている</div>
+        <div class="check-desc">考え始めてから1年以上経っているのに、まだ動いていない</div>
+      </div>
+    </div>
+
+    <div class="check-item" onclick="toggle(this, 5)">
+      <div class="check-box"><span class="check-mark">✓</span></div>
+      <div class="check-content">
+        <div class="check-title">誰かと比べて焦ることが週に何度かある</div>
+        <div class="check-desc">SNSで同世代の活躍を見て、自分が止まっているように感じる</div>
+      </div>
+    </div>
+
+    <div class="check-item" onclick="toggle(this, 6)">
+      <div class="check-box"><span class="check-mark">✓</span></div>
+      <div class="check-content">
+        <div class="check-title">休んでいても、なぜか休めた気がしない</div>
+        <div class="check-desc">在宅で時間があるのに、罪悪感があってリラックスできない</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 結果エリア -->
+  <div class="result-area">
+    <div class="result-count" id="count">0 <span>/ 7</span></div>
+    <div class="result-label">当てはまった項目</div>
+    <div class="result-message" id="msg"></div>
+  </div>
+
+  <div class="divider"><div class="divider-dot"></div><div class="divider-dot"></div><div class="divider-dot"></div></div>
+
+  <!-- CTA -->
+  <div class="cta-area">
+    <p class="cta-label">NEXT STEP</p>
+    <p class="cta-text">
+      鎧に気づいた今が、外すチャンスです。<br>
+      情報は十分集めたはずです。<strong>足りないのは情報じゃない。</strong><br>
+      60分、一緒に確かめませんか。
+    </p>
+    <a href="#" class="cta-btn">お話し会に申し込む（無料・60分）</a>
+    <p class="cta-note">まず話すだけでいい。会社員でも事業主でも大丈夫です。</p>
+  </div>
+
+  <div class="footer-sig">
+    <div class="sig-avatar">鈴</div>
+    <div class="sig-info">
+      <p>鈴木健太</p>
+      <p>人生を創造するガイド｜木守火（きもりび）</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const messages = [
+    { min: 0, max: 0, text: '今のところ鎧は見当たりません。でも、気づいていないだけかもしれません。もう少し自分の内側を覗いてみませんか。' },
+    { min: 1, max: 2, text: '少し鎧を感じます。まだ薄いうちに、一度立ち止まってみませんか。気づいている今が一番外しやすいタイミングです。' },
+    { min: 3, max: 4, text: '鎧を着ている可能性があります。「頑張っているのに何かが違う」という感覚、私にも覚えがあります。その違和感は正しい。' },
+    { min: 5, max: 6, text: '鎧はかなり厚くなっています。ずっと頑張ってきたんですね。でも、その重さに一人で耐えなくていいんです。' },
+    { min: 7, max: 7, text: '全部当てはまった。それだけ長い間、一人で戦ってきたということです。鎧を外すのに遅すぎることはありません。話しましょう。' }
+  ];
+
+  let checked = 0;
+
+  function toggle(el, idx) {
+    el.classList.toggle('checked');
+    checked = document.querySelectorAll('.check-item.checked').length;
+    document.getElementById('count').innerHTML = checked + ' <span>/ 7</span>';
+    updateMessage();
+  }
+
+  function updateMessage() {
+    const msgEl = document.getElementById('msg');
+    const match = messages.find(m => checked >= m.min && checked <= m.max);
+    if (match && checked > 0) {
+      msgEl.textContent = match.text;
+      msgEl.classList.add('visible');
+    } else {
+      msgEl.classList.remove('visible');
+    }
+  }
+</script>
+</body>
+</html>
